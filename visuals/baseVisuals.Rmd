@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(plyr)
 library(GGally)
+library(ggridges)
 # import file
 df <- read_csv('../NBAdraft.csv')
 
@@ -105,6 +106,7 @@ ggcorr(df.subset, method = c("everything", "pearson"))
 ```
 
 ```{r}
+## AVERAGE POINT PER GAME VS DRAFT PICK----
 # points <- df$PTS_college
 # draft.pick <- df$Pk
 
@@ -125,6 +127,7 @@ ggplot(df, aes(x=Pk, y=PTS_college)) +
 ```
 
 ```{r}
+## SMALL MULTIPLES----
 df.subset <- df[c('Pk',"2P_perc","3P_perc","FT_perc")]
 df.percent <- df.subset %>% pivot_longer(!Pk, names_to = "PointType", values_to = "Percent")
 
@@ -139,6 +142,125 @@ ggplot(df.percent, aes(x = Percent, y = PointType, fill = PointType)) +
   theme(legend.position = "none") # remove legend
 ```
 
+```{r}
+## RIDGELINE PLOT(SMALL MULTIPLES) ----
+df.subset2 <- df[c('lottery',"2P_perc","3P_perc","FT_perc", "FG_college_perc")]
+df.percent2 <- df.subset2 %>% pivot_longer(!lottery, names_to = "PointType", values_to = "Percent")
+
+ggplot(df.percent2, aes(x = Percent, y = PointType, fill = PointType)) +
+  geom_density_ridges() +
+  facet_grid(lottery ~ .) +
+  theme_bw() +
+  scale_y_discrete(labels=c("FT_perc" = "Free Throw", "3P_perc" = "3-Pointer", "2P_perc" = "2-Pointer", "FG_college_perc" = "Field Goal")) + # change y-tick labels
+  xlab("Percent Accuracy") +
+  ylab("Type of Shot Attempted") +
+  ggtitle("Comparing Point Stats of Lottery Choices") +
+  theme(legend.position = "none") # remove legend
+
+```
+
+
+```{r}
+## BUBBLE CHART----
+## 
+ggplot(df, aes(x=Pk, y=PTS_college, size=MP_college, color=lottery)) +
+  geom_point(
+    aes(color=lottery),#, shape=lottery),
+    size=2,
+    alpha=0.8,
+  ) +
+  scale_color_manual(
+    values = c("#386cb0", "#fdb462", "#7fc97f")
+  ) +
+  geom_smooth(method = lm, col='red') + # add linear trend line
+  theme_bw() +
+  xlab("Draft Pick") +
+  ylab("Average Points Per Game (college)") +
+  ggtitle("Comparing points scored to draft pick number") + 
+  scale_size(range = c(.1, 24), name="Population (M)")
+
+ggplot(df, aes(x=Pk, y=PTS_college, size=FG_college_perc, color=lottery)) +
+    geom_point(alpha=0.5) +
+    scale_size(range = c(.1, 10), name="FG_college_perc")
+```
+
+```{r}
+df.lotteryT <- df[which(df$lottery == "TRUE"),]
+
+ggplot(df.lotteryT, aes(x = PTS_college)) +
+  geom_boxplot(fill="#ff7f00") +
+  facet_grid(Pk ~ .) +
+  # theme_bw() +
+  theme_classic() +
+  xlab("Points Scored") +
+  ggtitle("Average Points Scored vs. Draft Pick") +
+  # theme(legend.position = "none") + # remove legend
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+
+
+ggplot(df.lotteryT, aes(x = ORB)) +
+  geom_boxplot(fill="#0080ff") +
+  facet_grid(Pk ~ .) +
+  # theme_bw() +
+  theme_classic() +
+  xlab("Average Offensive Rebounds") +
+  ggtitle("Average Offensive Rebounds vs. Draft Pick") +
+  # theme(legend.position = "none") + # remove legend
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+
+
+ggplot(df.lotteryT, aes(x = DRB)) +
+  geom_boxplot(fill="#808080") +
+  facet_grid(Pk ~ .) +
+  # theme_bw() +
+  theme_classic() +
+  xlab("Average Defensive Rebounds") +
+  ggtitle("Average Defensive Rebounds vs. Draft Pick") +
+  # theme(legend.position = "none") + # remove legend
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+
+
+ggplot(df.lotteryT, aes(x = PF)) +
+  geom_boxplot(fill="#ff0000") +
+  facet_grid(Pk ~ .) +
+  # theme_bw() +
+  theme_classic() +
+  xlab("Average Defensive Rebounds") +
+  ggtitle("Average Defensive Rebounds vs. Draft Pick") +
+  # theme(legend.position = "none") + # remove legend
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+```
+```{r}
+ggplot(df, aes(x = PTS_college)) +
+  geom_boxplot(aes(color=lottery)) +
+  facet_grid(lottery ~ .) +
+  # theme_bw() +
+  theme_classic() +
+  xlab("Points Scored") +
+  ggtitle("Average Points Scored vs. Draft Pick") +
+  # theme(legend.position = "none") + # remove legend
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank()) +
+  scale_fill_manual(values=c("#999999", "#E69F00"))
+
+ggplot(df, aes(x=PTS_college, fill=lottery)) +
+  # geom_violin() +
+  geom_boxplot(width=0.3,color="#dfbb85", alpha=1) +
+  scale_fill_manual(values=c("#999999", "#E69F00")) +
+  theme_bw() + 
+  xlab("")
+
+
+```
 
 
 Top variables:
