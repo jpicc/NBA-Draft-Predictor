@@ -16,6 +16,11 @@ library(plyr)
 library(GGally)
 # import file
 df <- read_csv('../NBAdraft.csv')
+
+names(df)[9] <- "FG_college_perc"
+names(df)[12] <- "2P_perc"
+names(df)[15] <- "3P_perc"
+names(df)[18] <- "FT_perc"
 ```
 
 ```{r message=FALSE, warning=FALSE}
@@ -56,21 +61,28 @@ ggplot(df, aes(x=lottery, y=MP_college, fill=lottery)) +
   theme_bw() + 
   xlab("")
 
-ggplot(df, aes(x=lottery, y=`FG%_college`, fill=lottery)) +
+ggplot(df, aes(x=lottery, y=FG_college_perc, fill=lottery)) +
   geom_violin() +
   geom_boxplot(width=0.3,color="darkgrey", alpha=0.2) +
   scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +
   theme_bw() + 
   xlab("")
 
-ggplot(df, aes(x=lottery, y=`3P%_college`, fill=lottery)) +
+ggplot(df, aes(x=lottery, y=`3P_perc`, fill=lottery)) +
   geom_violin() +
   geom_boxplot(width=0.3,color="#dfbb85", alpha=0.2) +
   scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +
   theme_bw() + 
   xlab("")
 
-ggplot(df, aes(x=lottery, y=`FT%_college`, fill=lottery)) +
+ggplot(df, aes(x=lottery, y=`2P_perc`, fill=lottery)) +
+  geom_violin() +
+  geom_boxplot(width=0.3,color="#dfbb85", alpha=0.2) +
+  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +
+  theme_bw() + 
+  xlab("")
+
+ggplot(df, aes(x=lottery, y=FT_perc, fill=lottery)) +
   geom_violin() +
   geom_boxplot(width=0.3,color="#dfbb85", alpha=0.2) +
   scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +
@@ -87,8 +99,9 @@ ggplot(df, aes(x=lottery, y=`ORB`, fill=lottery)) +
 
 ```{r}
 ## CORRELATION MATRIX ----
-# df.subset <- df[c('PTS_college', `FG%_college`,`FT%_college`, `3P%_college`, `2P%_college`)]
-# ggcorr(df.subset, method = c("everything", "pearson"))
+
+df.subset <- df[c('PTS_college',"2P_perc","3P_perc","FT_perc")]
+ggcorr(df.subset, method = c("everything", "pearson"))
 ```
 
 ```{r}
@@ -110,4 +123,24 @@ ggplot(df, aes(x=Pk, y=PTS_college)) +
   ylab("Average Points Per Game (college)") +
   ggtitle("Comparing points scored to draft pick number")
 ```
+
+```{r}
+df.subset <- df[c('Pk',"2P_perc","3P_perc","FT_perc")]
+df.percent <- df.subset %>% pivot_longer(!Pk, names_to = "PointType", values_to = "Percent")
+
+library(ggridges)
+ggplot(df.percent, aes(x = Percent, y = PointType, fill = PointType)) +
+  geom_density_ridges() +
+  theme_bw() +
+  scale_y_discrete(labels=c("FT_perc" = "Free Throw", "3P_perc" = "3-Pointer", "2P_perc" = "2-Pointer")) + # change y-tick labels
+  xlab("Percent Accuracy") +
+  ylab("Type of Shot Attempted") +
+  ggtitle("(Add Title Here)") +
+  theme(legend.position = "none") # remove legend
+```
+
+
+
+Top variables:
+GS,MP_college,two_P_perc,three_P,FTA,ORB,STL,SOS
 
