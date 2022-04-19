@@ -1,0 +1,284 @@
+---
+title: "512_Project"
+output: html_document
+---
+Packages
+```{r}
+library(tidyverse)
+library(caret)
+library(ggplot2)
+library(stargazer)
+library(kableExtra)
+library(readxl)
+library(knitr)
+require(MASS)
+```
+
+#Import data set  
+```{r}
+
+nba <- read.csv("NBAdraft.csv", check.names = F)
+
+
+#remove rank 
+nba <- subset(nba, select = -c(1))
+#head(nba)
+#str(nba)
+
+#remove school, name and lottery column 
+nba <- subset(nba, select=-c(2,28,29))
+
+nba$Pk <- as.numeric(nba$Pk)
+nba$G_college <- as.numeric(nba$G_college)
+nba$GS <- as.numeric(nba$GS)
+#str(nba)
+cbind(
+   lapply(
+     lapply(nba, is.na)
+     , sum)
+   )
+#3P%_college has NAs so remove column 
+nba <- nba[ , -which(names(nba) %in% c("3P%_college"))]
+
+```
+
+#Split into train/test
+```{r}
+set.seed(1128)
+train_index <- createDataPartition(nba$Pk, p=0.7,
+                                   list=FALSE,
+                                   times=1)
+nba_train <- nba[train_index, ]
+nba_test <- nba[-train_index, ]
+```
+
+#Linear Regression all Variables 
+```{r}
+lm_nba = lm(Pk ~., data=nba_train)
+summary(lm_nba)
+#
+
+
+```
+
+#RMSE
+```{r}
+library(hydroGOF)
+pred = lm_nba %>%
+  predict(nba_test)
+
+(rmse <- RMSE(pred, nba_test$Pk, na.rm=TRUE))
+
+
+rmse <- sqrt(mean(lm_nba$residuals^2))
+rmse
+
+stargazer(lm_nba, type="text", summary=TRUE, title="NBA Linear Regression")
+```
+
+#Linear Regression (top 8 variables)
+
+```{r}
+#set up CV and control parameters 
+metric <- "RMSE"
+tuneLength <- 10
+
+linearModelReg <- caret::train(Pk ~ GS+MP_college+`2P%`+`3P`+FTA+ORB+STL+SOS, data=nba_train, metric=metric, preProc = c("center", "scale"), method="lm", tuneLength=tuneLength)
+
+summary(linearModelReg)
+```
+```{r}
+linearplotmodel<-lm(Pk ~ GS+MP_college+`2P%`+`3P`+FTA+ORB+STL+SOS,
+                    data=nba_train)
+stargazer::stargazer(linearplotmodel, type='text', summary=TRUE,report = "vc*stp",ci=TRUE)
+```
+
+```{r}
+par(mfrow=c(2,2))
+plot(linearplotmodel, col="blue", pch=21)
+```
+#Prediction and Accuracy 
+```{r}
+predictions<-predict(linearModelReg,newdata = nba_test)
+# 
+rmse<-RMSE(predictions, nba_test$Pk)
+# 
+error.rate.linear <- rmse/mean(nba_test$Pk)
+# 
+linearr2 <- R2( predictions,nba_test$Pk) 
+# 
+lineardf <- data.frame( Algorithm="Linear Regression",RMSE = rmse, R2 = linearr2 , Error =error.rate.linear) 
+# 
+kable(lineardf) %>%
+   kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+```
+#Polynomial 
+
+```{r}
+poly_reg <- lm(Pk ~ poly(GS,2)+ poly(MP_college,2) + poly(`2P%`,2)+poly(`3P`,2) + poly(FTA, 2)+poly(ORB,2) + poly(STL,2) + poly(SOS,2), data=nba_train)
+
+
+#stargazer::stargazer(poly_reg, type='text', summary=TRUE,report = "vc*stp",ci=TRUE)
+
+```
+
+```{r}
+predictionpoly1 <-predict(poly_reg,newdata = nba_test)
+# 
+rmsepoly<-RMSE(predictions, nba_test$Pk)
+# 
+error.rate.poly <- rmse/mean(nba_test$Pk)
+# 
+polyrsquare <-  R2(predictionpoly1,nba_test$Pk) 
+# 
+
+polydf <- data.frame(Algorithm="Polynomial Regression", RMSE = rmsepoly, R2 = polyrsquare , Error =error.rate.poly) 
+kable(polydf) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+```
+#Spline 
+```{r}
+library(splines)
+# 
+knots <- quantile(nba_train$Pk, p = c(0.25, 0.5, 0.75))
+# 
+splinemodel<-lm(Pk~
+                 bs(GS, knots = knots)+ 
+                  bs(`3P`, knots = knots)+
+                bs(SOS, knots = knots)+bs(PTS_college,knots=knots), data = nba_train)
+
+#predict
+predictionspline <- predict(splinemodel, newdata = nba_test)
+# 
+rmsespline<-RMSE(predictionspline, nba_test$Pk)
+# 
+error.rate.spline <- rmsespline/mean(nba_test$Pk)
+# 
+splinersquare <-  R2(predictionspline,nba_test$Pk) 
+
+splinedf <- data.frame( Algorithm="Spline Regression",RMSE = rmsespline, R2 = splinersquare , Error =error.rate.spline) 
+# 
+kable(splinedf) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+
+```
+#TOTAL
+```{r}
+totaldf = rbind(lineardf, polydf, splinedf)
+print(totaldf)
+```
+#UPDATED DATASET
+```{r}
+#load 
+nba2 <- read.csv("NBAdraftADV.csv", check.names = F)
+
+#delete variables
+nba2 <- subset(nba2, select = -c(1,3,4,25,26,27))
+
+
+#head(nba2)
+
+#check for NAs -> there is none 
+cbind(
+   lapply(
+     lapply(nba, is.na)
+     , sum)
+   )
+
+set.seed(1128)
+train_index2 <- createDataPartition(nba2$Pk, p=0.7,
+                                   list=FALSE,
+                                   times=1)
+nba_train2 <- nba2[train_index2, ]
+nba_test2 <- nba2[-train_index2, ]
+```
+##Best subset 
+```{r}
+library(leaps)
+fit.nba <- regsubsets(Pk ~.,nba_train2)
+
+fit.summary <- summary(fit.nba)
+
+which.min(fit.summary$cp) #8
+which.min(fit.summary$bic) #7
+which.max(fit.summary$adjr2)  #8
+
+coef(fit.nba, 8)
+```
+##Linear Regression
+```{r}
+nba_fit <- lm(Pk~., data=nba_train2)
+summary(nba_fit)
+
+#only stat sig variables 
+nba_fit2 <- lm(Pk ~ G_college+GS+MP_college+`AST%`+`STL%`+`TOV%`+`USG%`, data=nba_train2)
+summary(nba_fit2)
+
+metric <- "RMSE"
+tuneLength <- 10
+#variables from best subset 
+linearModelReg2 <- caret::train(Pk ~ G_college+GS+`3PAr`+`AST%`+`STL%`+`TOV%`+`USG%`+WS_college, data=nba_train2, metric=metric, preProc = c("center", "scale"), method="lm", tuneLength=tuneLength)
+
+summary(linearModelReg2)
+
+predictions2<-predict(linearModelReg2,newdata = nba_test2)
+# 
+rmse2<-RMSE(predictions2, nba_test2$Pk)
+# 
+error.rate.linear2 <- rmse2/mean(nba_test2$Pk)
+# 
+linearr22 <- R2( predictions2,nba_test2$Pk) 
+# 
+lineardf2 <- data.frame( Algorithm="Linear Regression",RMSE = rmse2, R2 = linearr22 , Error =error.rate.linear2) 
+# 
+kable(lineardf2) %>%
+   kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+```
+
+##Polynomial Regression
+
+```{r}
+poly_reg2 <- lm(Pk ~ poly(G_college,2)+ poly(GS,2)+poly(`3PAr`,2)+poly(`AST%`,2) + poly(`STL%`, 2)+poly(`TOV%`,2) + poly(`USG%`,2)+poly(WS_college,2), data=nba_train2)
+
+predictionpoly2 <-predict(poly_reg2,newdata = nba_test2)
+# 
+rmsepoly2<-RMSE(predictions2, nba_test2$Pk)
+# 
+error.rate.poly2 <- rmse/mean(nba_test2$Pk)
+# 
+polyrsquare2 <-  R2(predictionpoly2,nba_test2$Pk) 
+# 
+
+polydf2 <- data.frame(Algorithm="Polynomial Regression", RMSE = rmsepoly2, R2 = polyrsquare2 , Error =error.rate.poly2) 
+kable(polydf2) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+```
+##Spline
+
+```{r}
+knots <- quantile(nba_train2$Pk, p = c(0.25, 0.5, 0.75))
+# 
+splinemodel2<-lm(Pk~
+                 bs(G_college, knots = knots)+ bs(GS,knots = knots)+
+                 bs(`3PAr`, knots = knots)+
+                 bs(`TOV%`, knots = knots)+ bs(WS_college, knots = knots), data = nba_train2)
+
+predictionspline2 <- predict(splinemodel2, newdata = nba_test2)
+# 
+rmsespline2<-RMSE(predictionspline2, nba_test2$Pk)
+# 
+error.rate.spline2 <- rmsespline2/mean(nba_test2$Pk)
+# 
+splinersquare2 <-  R2(predictionspline2,nba_test2$Pk) 
+
+splinedf2 <- data.frame( Algorithm="Spline Regression",RMSE = rmsespline2, R2 = splinersquare2 , Error =error.rate.spline2) 
+# 
+kable(splinedf2) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+```
+##Total
+```{r}
+totaldf2 = rbind(lineardf2, polydf2, splinedf2)
+print(totaldf2)
+```
+
