@@ -62,7 +62,7 @@ par(mfrow = c(2,2))
 a<-ggplot(df, aes(x=lottery, y=PTS_college, fill=lottery)) +
   geom_violin() +
   geom_boxplot(fill='white',width=0.3,color="black", alpha=0.7) +
-  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +
+  scale_fill_manual(values=c("#386cb0", "#fdb462", "#7fc97f")) +
   theme_classic() +
   theme(legend.position = "none") + # remove legend
   ylab("") +
@@ -72,7 +72,7 @@ a<-ggplot(df, aes(x=lottery, y=PTS_college, fill=lottery)) +
 b<-ggplot(df, aes(x=lottery, y=MP_college, fill=lottery)) +
   geom_violin() +
   geom_boxplot(fill='white',width=0.3,color="black", alpha=0.7) +
-  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +
+  scale_fill_manual(values=c("#386cb0", "#fdb462", "#7fc97f")) +
   theme_classic() + 
   theme(legend.position = "none") + # remove legend
   ylab("") +
@@ -82,7 +82,7 @@ b<-ggplot(df, aes(x=lottery, y=MP_college, fill=lottery)) +
 c<-ggplot(df, aes(x=lottery, y=FG_college_perc, fill=lottery)) +
   geom_violin() +
   geom_boxplot(fill='white',width=0.3,color="black", alpha=0.7) +
-  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +
+  scale_fill_manual(values=c("#386cb0", "#fdb462", "#7fc97f")) +
   theme_classic() + 
   theme(legend.position = "none") + # remove legend
   ylab("") +
@@ -92,7 +92,7 @@ c<-ggplot(df, aes(x=lottery, y=FG_college_perc, fill=lottery)) +
 d<-ggplot(df, aes(x=lottery, y=`3P_perc`, fill=lottery)) +
   geom_violin() +
   geom_boxplot(fill='white',width=0.3,color="black", alpha=0.7) +
-  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +
+  scale_fill_manual(values=c("#386cb0", "#fdb462", "#7fc97f")) +
   theme_classic() + 
   theme(legend.position = "none") + # remove legend
   ylab("") +
@@ -102,7 +102,7 @@ d<-ggplot(df, aes(x=lottery, y=`3P_perc`, fill=lottery)) +
 e<-ggplot(df, aes(x=lottery, y=`2P_perc`, fill=lottery)) +
   geom_violin() +
   geom_boxplot(fill='white',width=0.3,color="black", alpha=0.7) +
-  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +
+  scale_fill_manual(values=c("#386cb0", "#fdb462", "#7fc97f")) +
   theme_classic() + 
   theme(legend.position = "none") +
   ylab("") +
@@ -111,7 +111,7 @@ e<-ggplot(df, aes(x=lottery, y=`2P_perc`, fill=lottery)) +
 
 f<-ggplot(df, aes(x=lottery, y=FT_perc, fill=lottery)) +
   geom_violin() +
-  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +
+  scale_fill_manual(values=c("#386cb0", "#fdb462", "#7fc97f")) +
   geom_boxplot(fill='white',width=0.3,color="black", alpha=0.7) +
   theme_classic() + 
   theme(legend.position = "none") +
@@ -121,7 +121,7 @@ f<-ggplot(df, aes(x=lottery, y=FT_perc, fill=lottery)) +
 
 g<-ggplot(df, aes(x=lottery, y=PF, fill=lottery)) +
   geom_violin() +
-  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +
+  scale_fill_manual(values=c("#386cb0", "#fdb462", "#7fc97f")) +
   geom_boxplot(fill='white',width=0.3,color="black", alpha=0.7) +
   theme_classic() + 
   theme(legend.position = "none") +
@@ -131,7 +131,7 @@ g<-ggplot(df, aes(x=lottery, y=PF, fill=lottery)) +
 
 h<-ggplot(df, aes(x=lottery, y=AST_college, fill=lottery)) +
   geom_violin() +
-  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +
+  scale_fill_manual(values=c("#386cb0", "#fdb462", "#7fc97f")) +
   geom_boxplot(fill='white',width=0.3,color="black", alpha=0.7) +
   theme_classic() + 
   theme(legend.position = "none") +
@@ -141,7 +141,7 @@ h<-ggplot(df, aes(x=lottery, y=AST_college, fill=lottery)) +
 
 i<-ggplot(df, aes(x=lottery, y=STL, fill=lottery)) +
   geom_violin() +
-  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +
+  scale_fill_manual(values=c("#386cb0", "#fdb462", "#7fc97f")) +
   geom_boxplot(fill='white',width=0.3,color="black", alpha=0.7) +
   theme_classic() + 
   theme(legend.position = "none") +
@@ -149,18 +149,45 @@ i<-ggplot(df, aes(x=lottery, y=STL, fill=lottery)) +
   ggtitle("Steals per Game") +
   xlab("Lottery")
 
-a+b+c+d+e+f+g+h+i+plot_layout(ncol = 3)
-# figure <- ggarrange(a,b,c,d,
-#                     # labels = c("Points Scored per Game", "Minutes Played per Game", "Field Goal Accuracy", "3 Point Accuracy"),#, "2 Point Accuracy", "Free Throw Accuracy"),
-#                     nrow = 2, ncol=2)
-# figure
-# ggsave(file="boxplots.png", plot=figure)
+j<-ggplot(df, aes(x=lottery, y=SOS, fill=lottery)) +
+  geom_violin() +
+  scale_fill_manual(values=c("#386cb0", "#fdb462", "#7fc97f")) +
+  geom_boxplot(fill='white',width=0.3,color="black", alpha=0.7) +
+  theme_classic() + 
+  theme(legend.position = "none") +
+  ylab("") +
+  ggtitle("Strength of Schedule") +
+  xlab("Lottery")
+
+k<-ggplot(df, aes(x=lottery, y=FGA, fill=lottery)) +
+  geom_violin() +
+  scale_fill_manual(values=c("#386cb0", "#fdb462", "#7fc97f")) +
+  geom_boxplot(fill='white',width=0.3,color="black", alpha=0.7) +
+  theme_classic() + 
+  theme(legend.position = "none") +
+  ylab("") +
+  ggtitle("Field Goal Attempts") +
+  xlab("Lottery")
+
+l<-ggplot(df, aes(x=lottery, y=GS, fill=lottery)) +
+  geom_violin() +
+  scale_fill_manual(values=c("#386cb0", "#fdb462", "#7fc97f")) +
+  geom_boxplot(fill='white',width=0.3,color="black", alpha=0.7) +
+  theme_classic() + 
+  theme(legend.position = "none") +
+  ylab("") +
+  ggtitle("Games Started") +
+  xlab("Lottery")
+
+a+b+c+d+e+f+g+h+i+j+k+l+plot_layout(ncol = 4)
+
+
 ggsave(
-  file="boxplots.png",
+  file="boxplots_new.png",
   plot = last_plot(),
   device = NULL,
   path = NULL,
-  scale = 1.5,
+  scale = 2,
   width = NA,
   height = NA,
   units = c("in", "cm", "mm", "px"),
@@ -229,13 +256,26 @@ ggplot(df.percent2, aes(x = Percent, y = PointType, fill = PointType)) +
   facet_grid(lottery ~ .) +
   theme_classic() +
   scale_y_discrete(labels=c("FT_perc" = "Free Throw", "3P_perc" = "3-Pointer", "2P_perc" = "2-Pointer", "FG_college_perc" = "Field Goal")) + # change y-tick labels
-  # scale_fill_manual(values=c("#999999", "#E69F00#981717", "#56B4E9", "red")) +
-  scale_fill_manual(values=c("#f9c852", "#E69F00", "#dfbb85", "#bbbbbb")) +
+  scale_fill_manual(values=c("#999999", "#fdb462", "#386cb0", "red")) + # GREY , YELLOW , BLUE , RED
+  # scale_fill_manual(values=c("#f9c852", "#981717", "#dfbb85", "#bbbbbb")) +
   xlab("Percent Accuracy") +
   ylab("Type of Shot Attempted") +
   ggtitle("Comparing Point Stats of Lottery Choices") +
   theme(legend.position = "none") # remove legend
 
+ggsave(
+  file="ridgeline.png",
+  plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 1.5,
+  width = NA,
+  height = NA,
+  units = c("in", "cm", "mm", "px"),
+  dpi = 300,
+  limitsize = TRUE,
+  bg = NULL
+)
 ```
 
 
