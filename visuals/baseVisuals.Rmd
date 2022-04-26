@@ -227,8 +227,51 @@ image <- ggplot(df, aes(x=Pk, y=PTS_college)) +
         subtitle = "Comparing a player's average points per game to their draft number.",
         caption = "Years: 2010-2021")
 image
-ggsave(file="pointsPerGame_draft.png", plot=image)
+# ggsave(file="pointsPerGame_draft.png", plot=image)
 ```
+
+```{r}
+image <- ggplot(df, aes(x=Pk, y=PTS_college)) +
+  geom_point(
+    aes(color=lottery),#, shape=lottery),
+    size=2,
+    alpha=0.8,
+  ) +
+  scale_color_manual(
+    values = c("#386cb0", "#fdb462", "#7fc97f")
+  ) +
+  geom_smooth(method = lm, col='red') + # add linear trend line
+  theme_classic() +
+  xlab("Draft Pick") +
+  ylab("Average Points Per Game (college)") +
+  ggtitle("Comparing points scored to draft pick number") +
+  labs(title = "Points Scored for per Draft Pick",
+        subtitle = "Comparing a player's average points per game to their draft number.",
+        caption = "Years: 2010-2021")
+image
+
+image2 <- ggplot(df, aes(x=Pk, y=SOS)) +
+  geom_point(
+    aes(color=lottery),#, shape=lottery),
+    size=2,
+    alpha=0.8,
+  ) +
+  scale_color_manual(
+    values = c("#386cb0", "#fdb462", "#7fc97f")
+  ) +
+  geom_smooth(method = lm, col='red') + # add linear trend line
+  theme_classic() +
+  xlab("Draft Pick") +
+  ylab("Strength of Schedule") +
+  ggtitle("Comparing points scored to draft pick number") +
+  labs(title = "Strength of Schedule for Draft Pick",
+        subtitle = "Comparing a player's strength of schedule to their draft number.",
+        caption = "Years: 2010-2021")
+image2
+image+image2+plot_layout(ncol = 2)
+# ggsave(file="SOS_draft.png", plot=image)
+```
+
 
 ```{r}
 ## SMALL MULTIPLES----
