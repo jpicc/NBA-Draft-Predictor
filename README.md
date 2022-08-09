@@ -6,5 +6,5 @@ prospects.csv: 2021-2022 college player data (used to make predictions for 2022 
 <br />
 Draft_Pick_Predictor.ipynb: file where model is trained and predicitons are made
 <br />
-data
+data_cleaning.ipynb: file used to scrape and clean data
 
